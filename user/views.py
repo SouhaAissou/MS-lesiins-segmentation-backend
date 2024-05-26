@@ -44,7 +44,13 @@ def login(request):
 @authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def test_token(request):
-    return Response("passed for {}".format(request.user.email))
+    return Response(
+        # "passed for {}".format(request.user.email)
+        {
+            "message": "passed!",
+            "user": UserSerializer(request.user).data
+        }
+        )
 
 # get all users
 @api_view(['GET'])
@@ -103,6 +109,15 @@ def create_user(request):
         serializer.save()
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_user_id(request, id):
+    user = User.objects.get(id=id)
+    serializer = UserSerializer(user)
+    return Response(serializer.data)
+
 
 
 
